@@ -1,0 +1,26 @@
+public class MotionPlanner extends Thread {
+
+    private MotorControl motor;
+
+    public MotionPlanner(MotorControl motor) {
+        this.motor = motor;
+        setName("Motion Planner");
+        setPriority(Thread.NORM_PRIORITY);
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+
+            System.out.println(getName() + " is running.");
+
+            motor.useMotor(this);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
