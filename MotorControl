@@ -1,0 +1,61 @@
+public class MotorControl {
+
+    private boolean busy = false;
+
+    // Ceiling priority = highest priority of any thread that can use this resource
+    private static final int CEILING_PRIORITY = Thread.MAX_PRIORITY;
+
+    public void useMotor(Thread thread) {
+
+        int originalPriority;
+
+        synchronized (this) {
+
+            long request = System.currentTimeMillis();
+            System.out.println(request + " : " + thread.getName() + " REQUESTED");
+
+            while (busy) {
+                try {
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            busy = true;
+
+            originalPriority = thread.getPriority();
+            thread.setPriority(CEILING_PRIORITY);
+
+            System.out.println(thread.getName()
+                    + " ---> Ceiling priority applied ("
+                    + thread.getPriority() + ")");
+
+            long start = System.currentTimeMillis();
+            System.out.println(start + " : " + thread.getName() + " ACQUIRED");
+        }
+
+        // Simulate work outside the synchronized block. Because the thread
+        // is already running at ceiling (max) priority, no lower/medium
+        // priority thread can preempt it -> priority inversion is prevented.
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        synchronized (this) {
+
+            long end = System.currentTimeMillis();
+            System.out.println(end + " : " + thread.getName() + " RELEASED");
+
+            thread.setPriority(originalPriority);
+            System.out.println(thread.getName()
+                    + " ---> Priority restored ("
+                    + thread.getPriority() + ")");
+
+            busy = false;
+            notifyAll();
+        }
+    }
+}
