@@ -1,0 +1,32 @@
+public class Main {
+
+    public static void main(String[] args) {
+
+        MotorControl motor = new MotorControl();
+
+        LoggerThread logger = new LoggerThread(motor);
+        MotionPlanner planner = new MotionPlanner(motor);
+        SafetyMonitor safety = new SafetyMonitor(motor);
+
+        // Same startup sequence/timing as Task 3 and Task 4, so all three
+        // scenarios (baseline / inheritance / ceiling) are directly
+        // comparable in the Task 6 performance evaluation.
+        logger.start();
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        safety.start();
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        planner.start();
+    }
+}
